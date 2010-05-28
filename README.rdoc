@@ -15,30 +15,32 @@ Use
 	
 == Description
 
-This gem falls under the family of gems ASPIUM, ie (Another State Pattern Implementation Using Mixology).  However,
-this one adds much needed state pattern support for enumerated attributes (see http://github.com/jeffp/enumerated_attribute)
-and supports multiple states per objection since each attribute manages a state.
+This gem falls under the ASPIUM family of gems -- (Another State Pattern Implementation
+Using Mixology).  This ASPIUM adds state pattern support to enumerated attributes (see enumerated_attribute[http://github.com/jeffp/enumerated_attribute])
+and allows multiple state variables per object, one for each enumerated attribute.
 
 == Basic implementation
 
-So if you are using enumerated_attribute for an object tractor, you can replace the following code
-
-  case
-  when tractor.gear_is_first? then 'forwards'
-  when tractor.gear_is_reverse? then 'backwards'
-  else
-    'stopped'
-  end
-
-with the more maintainable version
-
-  tractor.direction
-
-if you define
+If you are using enumerated_attribute, you may have code looking something like
 
   class Tractor
-    enum_attr :gear, %w(reverse ^neutral first), allow_nil=>false
+    def direction
+      case
+      when tractor.gear_is_first? then 'forwards'
+      when tractor.gear_is_reverse? then 'backwards'
+      else
+        'stopped'
+      end
+    end
+  end
+
+Enumerated State lets you clean it up as so
+
+  class Tractor
+    enum_attr :gear, %w(reverse ^neutral first)
     acts_as_enumerated_state :gear
+
+    def direction; nil; end  # called if gear == nil
 
     module Reverse
       def direction; 'backwards'; end
@@ -48,6 +50,27 @@ if you define
     end
     module First
       def direction; 'forwards'; end
+    end
+  end
+
+== Multi-variable state and enum value conflicts
+
+Use the :module option to avoid naming conflicts between enumerated attributes
+
+  class Foobar
+    enum_attr :alpha, %w(state1 state2)
+    enum_attr :beta, %w(state1 state2 state3)  # names will overlap when mapped to modules
+
+    acts_as_enumerated_state :alpha
+    acts_as_enumerated_state :beta, :module=>'Beta'
+
+    module State1 ... end
+    module State2 ... end
+
+    module Beta
+      module State1 ... end
+      module State2 ... end
+      module State3 ... end
     end
   end
 
