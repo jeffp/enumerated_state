@@ -1,8 +1,8 @@
-gem 'mixology', :version=>'>=0.2.0'
+gem 'mixology', '>= 0.2.0'
 require 'mixology'
-gem 'meta_programming', :version=>'>=0.2.1'
+gem 'meta_programming', '>= 0.2.1'
 require 'meta_programming'
-gem 'enumerated_attribute', :version=>'>=0.2.0'
+gem 'enumerated_attribute', '>= 0.2.0'
 require 'enumerated_attribute'
 
 module EnumeratedState
