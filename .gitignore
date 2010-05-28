@@ -1,0 +1,6 @@
+.DS_Store
+pkg
+nbproject
+TODO.txt
+*.gemspec
+*.gem
