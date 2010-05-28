@@ -1,0 +1,58 @@
+= enumerated_state
+
+Implement state patterns for your enumerated_attributes
+
+== Resources
+
+Install
+
+* sudo gem enumerated_state
+
+Use
+
+* require 'enumerated_state'
+
+	
+== Description
+
+This gem falls under the family of gems ASPIUM, ie (Another State Pattern Implementation Using Mixology).  However,
+this one adds much needed state pattern support for enumerated attributes (see http://github.com/jeffp/enumerated_attribute)
+and supports multiple states per objection since each attribute manages a state.
+
+== Basic implementation
+
+So if you are using enumerated_attribute for an object tractor, you can replace the following code
+
+  case
+  when tractor.gear_is_first? then 'forwards'
+  when tractor.gear_is_reverse? then 'backwards'
+  else
+    'stopped'
+  end
+
+with the more maintainable version
+
+  tractor.direction
+
+if you define
+
+  class Tractor
+    enum_attr :gear, %w(reverse ^neutral first), allow_nil=>false
+    acts_as_enumerated_state :gear
+
+    module Reverse
+      def direction; 'backwards'; end
+    end
+    module Neutral
+      def direction; 'stopped'; end
+    end
+    module First
+      def direction; 'forwards'; end
+    end
+  end
+
+== Dependencies
+
+* meta_programming
+* mixology
+* enumerated_attribute
