@@ -15,7 +15,7 @@ Use
 	
 == Description
 
-This gem falls under the ASPIUM family of gems -- (Another State Pattern Implementation
+This gem belongs to the ASPIUM family of gems -- (Another State Pattern Implementation
 Using Mixology).  This ASPIUM adds state pattern support to enumerated attributes (see enumerated_attribute[http://github.com/jeffp/enumerated_attribute])
 and allows multiple state variables per object, one for each enumerated attribute.
 
