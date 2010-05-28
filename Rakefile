@@ -6,7 +6,7 @@ require 'gem_version'
 #require 'rake/contrib/sshpublisher'
 
 spec = Gem::Specification.new do |s|
-  s.name = 'Enumerated State'
+  s.name = 'enumerated_state'
   s.version = GemVersion.next_version
   s.platform = Gem::Platform::RUBY
   s.required_ruby_version = '>= 1.8.7'
