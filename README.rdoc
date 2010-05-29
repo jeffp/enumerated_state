@@ -57,7 +57,7 @@ We can clean this up a little by using acts_as_enumerated_state like this
 
 === Multi-variable state and enum value conflicts
 
-If your attributes share some enum values with the same name, there will be confusing as to which
+If your attributes share some enum values with the same name, there will be confusion as to which
 module belongs to which enumeration.  You can clear up the collision by using the
 :module option like this
 
@@ -95,7 +95,7 @@ when it cannot find the module.  For example, the following code causes an error
   Tractor.new.gear = :neutral  #error because there's no module
 
 But sometimes you may not need a module for each enumeration.  You may want some enumerations
-to use the same methods defined in the object itself.  You can back off the strictness
+to use a method defined by the object itself.  You can back off the strictness
 by setting the :strict option to false like this
 
   class Tractor
