@@ -27,42 +27,45 @@ class Class
     end
 
     define_chained_method(:write_enumerated_attribute, enum_attr) do |attribute, value|
-      module_prefix = self.class.get_enumerated_state_property(attribute, :module_prefix) || ''
-      strict = self.class.get_enumerated_state_property(attribute, :strict)
       if (value != (old_value = self.read_enumerated_attribute(attribute)))
         unless old_value.nil?
-          module_name = module_prefix + old_value.to_s.split(/_/).map(&:capitalize).join
-          _module = begin
-            self.class.class_eval(module_name)
-          rescue
-            begin
-              Kernel.class_eval(module_name)
-            rescue Exception => ex
-              raise ex if strict
-            end
-          end
+          _module = self.class.get_module_for_enumerated_state(attribute, old_value)
           self.unmix(_module) if _module
         end
       end
       self.__send__("write_enumerated_attribute_without_#{enum_attr}".to_sym, attribute, value)
       if (enum_attr == attribute.to_sym && !value.nil?)
-        module_name = module_prefix + value.to_s.split(/_/).map(&:capitalize).join
-        _module = begin
-          self.class.class_eval(module_name)
-        rescue
-          begin
-            Kernel.class_eval(module_name)
-          rescue Exception => ex
-            raise ex if strict
-          end
-        end
+        _module = self.class.get_module_for_enumerated_state(attribute, value)
         self.mixin(_module) if _module
       end
     end
   end
-    alias_method :enumerated_state_pattern, :acts_as_enumerated_state
+  alias_method :enumerated_state_pattern, :acts_as_enumerated_state
+
+  module EnumeratedStateHelpers
+
+  end
 
   module EnumeratedStateClassMethods
+    def get_module_for_enumerated_state(attribute, value)
+      value = value.to_sym unless value.nil?
+      return self.get_enumerated_state_property(attribute, value) if self.enumerated_state_property_exists?(attribute, value)
+
+      module_prefix = self.get_enumerated_state_property(attribute, :module_prefix) || ''
+      module_name = module_prefix + value.to_s.split(/_/).map(&:capitalize).join
+      strict = self.get_enumerated_state_property(attribute, :strict)
+      _module = begin
+        self.class_eval(module_name)
+      rescue
+        begin
+          Kernel.class_eval(module_name)
+        rescue Exception => ex
+          raise ex if strict
+        end
+      end
+      self.set_enumerated_state_property(attribute, value, _module)
+      _module
+    end
     def get_enumerated_state_property(enum_attr, prop_name)
       if @_enumerated_state.has_key?(enum_attr)
         if @_enumerated_state[enum_attr].has_key?(prop_name)
