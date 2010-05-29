@@ -61,7 +61,7 @@ Use the :module option to avoid naming conflicts between enumerated attributes
 
   class Foobar
     enum_attr :alpha, %w(state1 state2)
-    enum_attr :beta, %w(state1 state2 state3)  # names will overlap when mapped to modules
+    enum_attr :beta, %w(state1 state2 state3)  # names will collide when mapped to modules
 
     acts_as_enumerated_state :alpha
     acts_as_enumerated_state :beta, :module=>'Beta'
