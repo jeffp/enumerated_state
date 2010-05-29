@@ -15,7 +15,7 @@ Use
 	
 == Description
 
-This gem belongs to the ASPIUM family of gems -- (Another State Pattern Implementation
+This gem belongs to the ASPIUM family of gems -- (Another State Pattern Implemented
 Using Mixology).  This ASPIUM adds state pattern support to enumerated attributes (see enumerated_attribute[http://github.com/jeffp/enumerated_attribute])
 and allows multiple state variables per object, one for each enumerated attribute.
 
@@ -36,7 +36,7 @@ If you are using enumerated_attribute, you may have code looking something like
     end
   end
 
-We can refactor and clean up this code a little with acts_as_enumerated_state like this
+We can clean this up a little by using acts_as_enumerated_state like this
 
   class Tractor
     enum_attr :gear, %w(reverse ^neutral first)
@@ -57,7 +57,9 @@ We can refactor and clean up this code a little with acts_as_enumerated_state li
 
 === Multi-variable state and enum value conflicts
 
-Use the :module option to avoid naming conflicts between enumerated attributes
+If your attributes share some enum values with the same name, there will be confusing as to which
+module belongs to which enumeration.  You can clear up the collision by using the
+:module option like this
 
   class Foobar
     enum_attr :alpha, %w(state1 state2)
@@ -78,8 +80,8 @@ Use the :module option to avoid naming conflicts between enumerated attributes
 
 === Strict versus non-strict
 
-The default declaration of acts_as_enumerated_state strictly requires a module for
-each enum value.  Something like this will raise an error
+By default, acts_as_enumerated_state assigns one module for each enumeration and fails
+when it cannot find the module.  For example, the following code causes an error
 
   class Tractor
     enum_attr :gear, %w(reverse neutral first)
@@ -90,10 +92,11 @@ each enum value.  Something like this will raise an error
     module First ... end
   end
 
-  Tractor.new.gear = :neutral  #raises an error
+  Tractor.new.gear = :neutral  #error because there's no module
 
-But you may want some of the enum values to use the methods defined on the object
-itself, and this can be done by setting the :strict option to false like this
+But sometimes you may not need a module for each enumeration.  You may want some enumerations
+to use the same methods defined in the object itself.  You can back off the strictness
+by setting the :strict option to false like this
 
   class Tractor
     enum_attr :gear, %w(reverse neutral first)
@@ -104,6 +107,7 @@ itself, and this can be done by setting the :strict option to false like this
     module Reverse
       def motion; 'backwards'; end
     end
+    # no neutral module needed
     module First
       def motion; 'forwards'; end
     end
@@ -111,7 +115,7 @@ itself, and this can be done by setting the :strict option to false like this
 
   t = Tractor.new
   t.gear = :neutral
-  t.motion   # prints 'stopped'
+  t.motion   # calls motion on the object and returns 'stopped'
 
 
 == Dependencies
