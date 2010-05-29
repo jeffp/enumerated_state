@@ -19,7 +19,9 @@ This gem belongs to the ASPIUM family of gems -- (Another State Pattern Implemen
 Using Mixology).  This ASPIUM adds state pattern support to enumerated attributes (see enumerated_attribute[http://github.com/jeffp/enumerated_attribute])
 and allows multiple state variables per object, one for each enumerated attribute.
 
-== Basic implementation
+== Usage
+
+=== Basic implementation
 
 If you are using enumerated_attribute, you may have code looking something like
 
@@ -34,7 +36,7 @@ If you are using enumerated_attribute, you may have code looking something like
     end
   end
 
-Enumerated State lets you clean it up as so
+We can refactor and clean up this code a little with acts_as_enumerated_state like this
 
   class Tractor
     enum_attr :gear, %w(reverse ^neutral first)
@@ -53,7 +55,7 @@ Enumerated State lets you clean it up as so
     end
   end
 
-== Multi-variable state and enum value conflicts
+=== Multi-variable state and enum value conflicts
 
 Use the :module option to avoid naming conflicts between enumerated attributes
 
@@ -73,6 +75,43 @@ Use the :module option to avoid naming conflicts between enumerated attributes
       module State3 ... end
     end
   end
+
+=== Strict versus non-strict
+
+The default declaration of acts_as_enumerated_state strictly requires a module for
+each enum value.  Something like this will raise an error
+
+  class Tractor
+    enum_attr :gear, %w(reverse neutral first)
+    acts_as_enumerated_state :gear
+
+    module Reverse ...  end
+    module First ... end
+  end
+
+  Tractor.new.gear = :neutral  #raises an error
+
+But you may want some of the enum values to use the methods defined on the object
+itself, and this can be done by setting the :strict option to false like this
+
+  class Tractor
+    enum_attr :gear, %w(reverse neutral first)
+    acts_as_enumerated_state :gear, :strict=>false
+
+    def motion; 'stopped'; end
+
+    module Reverse
+      def motion; 'backwards'; end
+    end
+    module First
+      def motion; 'forwards'; end
+    end
+  end
+
+  t = Tractor.new
+  t.gear = :neutral
+  t.motion   # prints 'stopped'
+
 
 == Dependencies
 
