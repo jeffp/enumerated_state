@@ -18,7 +18,8 @@ class Class
       raise ArgumentError, "enumerated attribute :#{enum_attr} not defined"
     end
 
-    self.extend EnumeratedStateClassMethods
+    self.extend EnumeratedStateClassMethods # unless self.has_module?(EnumeratedStateClassMethods)
+
     self.set_enumerated_state_property(enum_attr, :module_prefix, opts[:module] ? "#{opts[:module]}::" : '')
     self.set_enumerated_state_property(enum_attr, :strict, opts[:strict] == false ? false : true)
 
@@ -27,24 +28,26 @@ class Class
     end
 
     define_chained_method(:write_enumerated_attribute, enum_attr) do |attribute, value|
-      if (value != (old_value = self.read_enumerated_attribute(attribute)))
-        unless old_value.nil?
-          _module = self.class.get_module_for_enumerated_state(attribute, old_value)
-          self.unmix(_module) if _module
-        end
+      without_method = "write_enumerated_attribute_without_#{enum_attr}".to_sym
+      return self.__send__(without_method, attribute, value) unless enum_attr == attribute.to_sym
+
+      old_value = self.read_enumerated_attribute(enum_attr)
+      result = self.__send__(without_method, attribute, value)
+
+      return result if value == old_value
+      unless old_value.nil?
+        _module = self.class.get_module_for_enumerated_state(attribute, old_value)
+        self.unmix(_module) if _module
       end
-      self.__send__("write_enumerated_attribute_without_#{enum_attr}".to_sym, attribute, value)
-      if (enum_attr == attribute.to_sym && !value.nil?)
+      unless value.nil?
         _module = self.class.get_module_for_enumerated_state(attribute, value)
         self.mixin(_module) if _module
       end
+
+      result
     end
   end
   alias_method :enumerated_state_pattern, :acts_as_enumerated_state
-
-  module EnumeratedStateHelpers
-
-  end
 
   module EnumeratedStateClassMethods
     def get_module_for_enumerated_state(attribute, value)
