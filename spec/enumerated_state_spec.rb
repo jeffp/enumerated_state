@@ -411,6 +411,32 @@ describe 'Enumerated State' do
     end
   end
 
+  describe "implementation with double states does not cause error" do
+    it "should not raise error" do
+      lambda {
+        class Impl30
+          enum_attr :enum1, %w(e1 e2)
+          acts_as_enumerated_state :enum1
+
+          enum_attr :enum2, %w(e3 e4)
+          acts_as_enumerated_state :enum2
+
+          module E1; def hi; 'hi e1'; end; end
+          module E2; def hi; 'hi e2'; end; end
+          module E3; def hello; 'hello e3'; end; end
+          module E4; def hello; 'hello e4'; end; end
+        end
+
+        obj = Impl30.new
+        obj.enum1 = :e1
+        obj.hi.should == 'hi e1'
+        obj.enum2 = :e3
+        obj.hello.should == 'hello e3'
+      }.should_not raise_exception
+    end
+
+  end
+
   describe "implementation error checking" do
 
     it "should raise exception when redeclaring enumerated states in subclass" do

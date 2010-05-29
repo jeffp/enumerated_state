@@ -18,14 +18,13 @@ class Class
       raise ArgumentError, "enumerated attribute :#{enum_attr} not defined"
     end
 
-    self.extend EnumeratedStateClassMethods # unless self.has_module?(EnumeratedStateClassMethods)
-
-    self.set_enumerated_state_property(enum_attr, :module_prefix, opts[:module] ? "#{opts[:module]}::" : '')
-    self.set_enumerated_state_property(enum_attr, :strict, opts[:strict] == false ? false : true)
-
     if self.method_defined?("write_enumerated_attribute_without_#{enum_attr}")
       raise EnumeratedState::RedefinitionError, "Enumerated state already defined for :#{enum_attr}"
     end
+
+    self.extend EnumeratedStateClassMethods # unless self.has_module?(EnumeratedStateClassMethods)
+    self.set_enumerated_state_property(enum_attr, :module_prefix, opts[:module] ? "#{opts[:module]}::" : '')
+    self.set_enumerated_state_property(enum_attr, :strict, opts[:strict] == false ? false : true)
 
     define_chained_method(:write_enumerated_attribute, enum_attr) do |attribute, value|
       without_method = "write_enumerated_attribute_without_#{enum_attr}".to_sym
