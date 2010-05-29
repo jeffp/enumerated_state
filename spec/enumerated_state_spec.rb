@@ -375,6 +375,42 @@ describe 'Enumerated State' do
     end
   end
 
+  describe "implementation with missing module" do
+    class Impl20
+      enum_attr :enum1, %w(mod1 mod2)
+      enum_attr :enum2, %w(mod3 mod2)
+      acts_as_enumerated_state :enum1, :strict=>false
+      acts_as_enumerated_state :enum2
+
+      def hello; 'hello Impl'; end
+      def hi; 'hi Impl'; end
+
+      module Mod1
+        def hello; 'hello Mod1'; end
+      end
+      module Mod3
+        def hi; 'hi Mod3'; end
+      end
+    end
+
+    it "should call Impl hello when enum1 set to Mod2 and :strict option set to false" do
+      obj = Impl20.new
+      obj.hello.should == 'hello Impl'
+      obj.enum1 = :mod1
+      obj.hello.should == 'hello Mod1'
+      obj.enum1 = :mod2
+      obj.hello.should == 'hello Impl'
+    end
+
+    it "should raise exception when enum2 set to Mod2 and :strict option not set" do
+      obj = Impl20.new
+      obj.hi.should == 'hi Impl'
+      obj.enum2 = :mod3
+      obj.hi.should == 'hi Mod3'
+      lambda { obj.enum2 = :mod2 }.should raise_exception(NameError)
+    end
+  end
+
   describe "implementation error checking" do
 
     it "should raise exception when redeclaring enumerated states in subclass" do
