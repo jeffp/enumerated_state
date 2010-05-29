@@ -86,6 +86,7 @@ each enum value.  Something like this will raise an error
     acts_as_enumerated_state :gear
 
     module Reverse ...  end
+    # where's the module for :neutral?
     module First ... end
   end
 
